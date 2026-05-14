@@ -108,7 +108,7 @@ np.save('y_train.npy', y_train)
 np.save('y_test.npy', y_test)
 
 print("Progress Saved! You can find these files in the left folder icon.")
-
+#5 fold cross validation
 from sklearn.model_selection import cross_val_score
 
 # Performing 5-Fold Cross-Validation
@@ -300,7 +300,7 @@ X_test, y_test = get_embeddings("/content/test_data.fasta")
 print("Done! Feature shapes:", X_train.shape, X_test.shape)
 
 !pip install Biopython
-
+#ProtBERT embedding
 import torch
 from transformers import BertModel, BertTokenizer
 from Bio import SeqIO
@@ -347,7 +347,7 @@ print("Extracting testing features...")
 X_test, y_test = get_embeddings("/content/test_data.fasta")
 
 print("Done! Feature shapes:", X_train.shape, X_test.shape)
-
+#random forest classifier
 #  Initialize the Random Forest with 'balanced' class weights
 
 clf = RandomForestClassifier(n_estimators=100, random_state=42, class_weight='balanced')
@@ -366,7 +366,7 @@ print(classification_report(y_test, y_pred))
 
 print("\n--- Confusion Matrix ---")
 print(confusion_matrix(y_test, y_pred))
-
+#plot roc curve
 import matplotlib.pyplot as plt
 from sklearn.metrics import roc_curve, auc
 
@@ -395,7 +395,7 @@ plt.savefig('ROC_Curve_Results.png', dpi=300, bbox_inches='tight')
 plt.show()
 
 print(f"Final Area Under the Curve (AUC): {roc_auc:.4f}")
-
+#feature extraction
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
@@ -426,3 +426,97 @@ plt.grid(axis='x', linestyle='--', alpha=0.7)
 # Save the plot for your report
 plt.savefig('Feature_Importance_Top20.png', dpi=300, bbox_inches='tight')
 plt.show()
+
+
+# Corelation heatmap biological mapping of dimentions
+import pandas as pd
+from scipy.stats import spearmanr
+import seaborn as sns
+from Bio import SeqIO
+
+
+# 1. We need the raw sequences to calculate Amino Acid frequencies.
+# Let's re-extract just the sequences from your test FASTA file.
+test_sequences = []
+for record in SeqIO.parse("/content/test_data.fasta", "fasta"):
+    test_sequences.append(str(record.seq))
+
+# 2. Create a DataFrame from your X_test (the 1024 embeddings)
+# This gives us a table where columns are ProtBert_Dim_0, ProtBert_Dim_1, etc.
+df_test_embeddings = pd.DataFrame(X_test, columns=[f"ProtBert_Dim_{i}" for i in range(1024)])
+df_test_embeddings['Sequence'] = test_sequences
+
+# 3. Calculate Amino Acid Frequencies
+amino_acids = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y']
+
+def get_aa_freq(seq):
+    return {aa: (seq.count(aa) / len(seq)) if len(seq) > 0 else 0 for aa in amino_acids}
+
+print("Calculating amino acid frequencies for interpretation...")
+aa_freq_df = df_test_embeddings['Sequence'].apply(get_aa_freq).apply(pd.Series)
+
+# 4. Use the 'feature_names' (Top 20) generated from your RF code
+corr_matrix = pd.DataFrame(index=feature_names, columns=amino_acids)
+
+for feature in feature_names:
+    dim_values = df_test_embeddings[feature]
+    for aa in amino_acids:
+        coef, _ = spearmanr(dim_values, aa_freq_df[aa])
+        corr_matrix.loc[feature, aa] = coef
+
+# 5. Plot the Correlation Heatmap
+plt.figure(figsize=(15, 8))
+sns.heatmap(corr_matrix.astype(float), annot=True, cmap='RdBu_r', center=0, fmt=".2f")
+plt.title("Biological Mapping: Top 20 ProtBert Dimensions vs Amino Acid Frequency")
+plt.xlabel("Amino Acid")
+plt.ylabel("Top ProtBert Dimensions (from Random Forest)")
+plt.savefig('Biological_Correlation_Heatmap.png', dpi=300,  bbox_inches='tight')
+plt.show()
+
+#virtual mutation test
+import numpy as np
+import torch
+
+def virtual_mutation_test(sequence, pos_to_mutate, new_amino_acid):
+    """
+    sequence: The original protein string (e.g., 'MAVK...')
+    pos_to_mutate: List of indices to change
+    new_amino_acid: The AA to insert (e.g., 'T' for Threonine)
+    """
+    
+    # 1. Create the mutated sequence
+    seq_list = list(sequence.replace(" ", "")) # Remove spaces if present
+    for pos in pos_to_mutate:
+        if pos < len(seq_list):
+            seq_list[pos] = new_amino_acid
+    
+    mutated_seq = " ".join(seq_list)
+    original_seq = " ".join(list(sequence.replace(" ", "")))
+
+    # 2. Extract embeddings for both
+    def get_single_embedding(s):
+        ids = tokenizer(s, return_tensors='pt', padding=True, truncation=True, max_length=512).to(device)
+        with torch.no_grad():
+            output = model(**ids)
+        return output.last_hidden_state.mean(dim=1).squeeze().cpu().numpy().reshape(1, -1)
+
+    orig_emb = get_single_embedding(original_seq)
+    mut_emb = get_single_embedding(mutated_seq)
+
+    # 3. Predict probabilities
+    orig_prob = clf.predict_proba(orig_emb)[0][1]
+    mut_prob = clf.predict_proba(mut_emb)[0][1]
+
+    print(f"--- Mutation Results ({new_amino_acid}) ---")
+    print(f"Original Resistance Probability: {orig_prob:.4f}")
+    print(f"Mutated Resistance Probability:  {mut_prob:.4f}")
+    print(f"Change: {((mut_prob - orig_prob) / orig_prob * 100):.2f}%")
+
+# --- EXECUTION ---
+# Pick a sequence from your test set that is currently labeled 'Non-Resistant'
+sample_idx = 12 
+sample_seq = test_sequences[sample_idx]
+
+# Let's mutate 5 random positions to Threonine (which showed high importance in your heatmap)
+positions = list(range(0, 50))
+virtual_mutation_test(sample_seq, positions, 'T')
