@@ -1,7 +1,7 @@
 # Predicting Beta-Lactam Resistance in *Escherichia coli* Using a Protein Language Model
 
 # Overview
-This repository contains the implementation of my Final Year Project (FYP), which focuses on predicting beta-lactam antibiotic resistance in *Escherichia coli* using a Protein Language Model (ProtBERT) and a Random Forest classifier. The project demonstrates how deep learning-based protein embeddings can be combined with traditional machine learning techniques to identify antimicrobial resistance from protein sequences.
+This repository contains the implementation of my Final Year Project (FYP), which focuses on predicting beta-lactam antibiotic resistance in *Escherichia coli* using a Protein Language Model. The project demonstrates how deep learning-based protein embeddings can be combined with traditional machine learning techniques to identify antimicrobial resistance from protein sequences.
 
 
 # Project Objectives
@@ -81,7 +81,7 @@ Virtual mutation analysis was performed by introducing amino acid substitutions 
 
 # How to Run
 1. Clone this repository.
-git clone https://github.com/your-username/your-repository.git
+git clone https://github.com/MadihAbdulRehman/FYP
 2. Install the required Python packages.
 pip install -r requirements.txt
 3. Open the notebook in Google Colab or Jupyter Notebook.
