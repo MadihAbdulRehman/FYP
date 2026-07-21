@@ -1,4 +1,4 @@
-# Predicting Beta-Lactam Resistance in *Escherichia coli* Using ProtBERT and Random Forest
+# Predicting Beta-Lactam Resistance in *Escherichia coli* Using a Protein Language Model
 
 # Overview
 This repository contains the implementation of my Final Year Project (FYP), which focuses on predicting beta-lactam antibiotic resistance in *Escherichia coli* using a Protein Language Model (ProtBERT) and a Random Forest classifier. The project demonstrates how deep learning-based protein embeddings can be combined with traditional machine learning techniques to identify antimicrobial resistance from protein sequences.
@@ -55,14 +55,13 @@ The workflow of this project consists of the following steps:
 * Matplotlib
 
 # Repository Contents
-├── Predicting_beta_lactam_resistance.ipynb
+ Predicting_beta_lactam_resistance.ipynb
 ├── README.md
 ├── requirements.txt
-├── figures/
 ├── train_data.fasta
 ├── test_data.fasta
-└── random_forest_model.pkl
-
+├── ROC_CURVE ANALYSIS
+├── Feature Importance.
 
 # Model Evaluation
 The Random Forest classifier was evaluated using:
