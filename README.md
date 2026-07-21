@@ -61,7 +61,6 @@ The workflow of this project consists of the following steps:
 ├── train_data.fasta
 ├── test_data.fasta
 ├── figure/
-│   ├── workflow_diagram.png
 │   ├── roc_curve.png
 │   └── feature_importance.png
 ├── Project_Summary.md
