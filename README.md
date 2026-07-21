@@ -60,8 +60,10 @@ The workflow of this project consists of the following steps:
 ├── requirements.txt
 ├── train_data.fasta
 ├── test_data.fasta
-├── ROC_CURVE ANALYSIS
-├── Feature Importance
+├── figure/
+│   ├── workflow_diagram.png
+│   ├── roc_curve.png
+│   └── feature_importance.png
 ├── Project_Summary.md
 
 # Model Evaluation
