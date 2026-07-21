@@ -55,13 +55,14 @@ The workflow of this project consists of the following steps:
 * Matplotlib
 
 # Repository Contents
- Predicting_beta_lactam_resistance.ipynb
+├── Predicting_beta_lactam_resistance.ipynb
 ├── README.md
 ├── requirements.txt
 ├── train_data.fasta
 ├── test_data.fasta
 ├── ROC_CURVE ANALYSIS
-├── Feature Importance.
+├── Feature Importance
+├── Project_Summary
 
 # Model Evaluation
 The Random Forest classifier was evaluated using:
