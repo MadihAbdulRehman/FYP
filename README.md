@@ -62,7 +62,7 @@ The workflow of this project consists of the following steps:
 ├── test_data.fasta
 ├── ROC_CURVE ANALYSIS
 ├── Feature Importance
-├── Project_Summary
+├── Project_Summary.md
 
 # Model Evaluation
 The Random Forest classifier was evaluated using:
